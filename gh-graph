@@ -1,10 +1,12 @@
 #!/bin/bash
 
-USER=$(gh api user --jq .login)
-if [ $? -ne 0 ]
-then
-  echo "${USER}"
-  exit 1
+GH_USER="$1"
+if [[ -z "$GH_USER" ]]; then
+  GH_USER=$(gh api user --jq .login)
+  if [[ $? -ne 0 ]]; then
+    echo "${GH_USER}"
+    exit 1
+  fi
 fi
 
-curl "https://github-contributions-api.deno.dev/${USER}.term"
+curl "https://github-contributions-api.deno.dev/${GH_USER}.term"
