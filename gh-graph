@@ -1,6 +1,35 @@
 #!/bin/bash
 
+usage() {
+  cat << EOS >&2
+gh graph
+  GitHub contribution graph in your terminal.
+
+USAGE:
+  gh graph [options] [user]
+
+ARGS:
+  user  GitHub user name.
+        If this is blank, the current user (login by 'gh auth login') will be used.
+
+OPTIONS:
+  -i, --invert          Change the background colors instead of the foreground colors.
+      --no-total        Remove the total contributions count.
+      --no-legend       Remove the legend.
+  -s, --scheme <name>   Use the specific color scheme.
+                        The default is 'github'.
+  -p, --pixel <char>    Use the character as pixels (URL encoding is required).
+                        The default is '■' (encoded to '%E2%96%A0').
+  -h, --help            Show this help message.
+
+AUTHOR:
+  kawarimidoll (https://github.com/kawarimidoll)
+EOS
+}
+
 invalid() {
+  usage
+  echo
   echo "$@" 1>&2
   exit 1
 }
@@ -8,6 +37,10 @@ invalid() {
 while (( $# > 0 ))
 do
   case $1 in
+    -h | --help)
+      usage
+      exit 0
+      ;;
     --no-total)
       if [[ -n "$NO_TOTAL" ]]; then
         invalid "Duplicated 'no-total' option."
