@@ -1,6 +1,85 @@
 #!/bin/bash
 
-GH_USER="$1"
+invalid() {
+  echo "$@" 1>&2
+  exit 1
+}
+
+while (( $# > 0 ))
+do
+  case $1 in
+    --no-total)
+      if [[ -n "$NO_TOTAL" ]]; then
+        invalid "Duplicated 'no-total' option."
+        exit 1
+      fi
+      NO_TOTAL=1
+      shift
+      ;;
+    --no-legend)
+      if [[ -n "$NO_LEGEND" ]]; then
+        invalid "Duplicated 'no-legend' option."
+        exit 1
+      fi
+      NO_LEGEND=1
+      shift
+      ;;
+    -i | --invert)
+      if [[ -n "$INVERT" ]]; then
+        invalid "Duplicated 'invert' option."
+        exit 1
+      fi
+      INVERT=1
+      shift
+      ;;
+    -s | --scheme)
+      if [[ -n "$SCHEME" ]]; then
+        invalid "Duplicated 'scheme' option."
+        exit 1
+      fi
+      SCHEME="$2"
+      shift 2
+      ;;
+    -p | --pixel)
+      if [[ -n "$PIXEL" ]]; then
+        invalid "Duplicated 'pixel' option."
+        exit 1
+      fi
+      PIXEL="$2"
+      shift 2
+      ;;
+    -*)
+      invalid "Illegal option -- '$(echo $1 | sed 's/^-*//')'."
+      exit 1
+      ;;
+    *)
+      if [[ -n "$GH_USER" ]]; then
+        invalid "Too many arguments."
+        exit 1
+      fi
+      GH_USER="$1"
+      shift
+      ;;
+  esac
+done
+
+OPTS="?gh-graph=true"
+if [[ -n "$NO_TOTAL" ]]; then
+  OPTS="$OPTS&no-total=true"
+fi
+if [[ -n "$NO_LEGEND" ]]; then
+  OPTS="$OPTS&no-legend=true"
+fi
+if [[ -n "$INVERT" ]]; then
+  OPTS="$OPTS&invert=true"
+fi
+if [[ -n "$SCHEME" ]]; then
+  OPTS="$OPTS&scheme=$SCHEME"
+fi
+if [[ -n "$PIXEL" ]]; then
+  OPTS="$OPTS&pixel=$PIXEL"
+fi
+
 if [[ -z "$GH_USER" ]]; then
   GH_USER=$(gh api user --jq .login)
   if [[ $? -ne 0 ]]; then
@@ -9,4 +88,4 @@ if [[ -z "$GH_USER" ]]; then
   fi
 fi
 
-curl "https://github-contributions-api.deno.dev/${GH_USER}.term"
+curl "https://github-contributions-api.deno.dev/${GH_USER}.term${OPTS}"
