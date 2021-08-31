@@ -65,27 +65,35 @@ do
       INVERT=1
       shift
       ;;
-    -s | --scheme)
+    -s | --scheme | --scheme=*)
       if [[ -n "$SCHEME" ]]; then
         invalid "Duplicated 'scheme' option."
         exit 1
+      elif [[ "$1" =~ ^--scheme= ]]; then
+        SCHEME=$(echo $1 | sed -e 's/^--scheme=//')
+        shift
       elif [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
         invalid "'scheme' option requires an argument."
         exit 1
+      else
+        SCHEME="$2"
+        shift 2
       fi
-      SCHEME="$2"
-      shift 2
       ;;
-    -p | --pixel)
+    -p | --pixel | --pixel=*)
       if [[ -n "$PIXEL" ]]; then
         invalid "Duplicated 'pixel' option."
         exit 1
+      elif [[ "$1" =~ ^--pixel= ]]; then
+        PIXEL=$(echo $1 | sed -e 's/^--pixel=//')
+        shift
       elif [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
         invalid "'pixel' option requires an argument."
         exit 1
+      else
+        PIXEL="$2"
+        shift 2
       fi
-      PIXEL="$2"
-      shift 2
       ;;
     -*)
       invalid "Illegal option -- '$(echo $1 | sed 's/^-*//')'."
